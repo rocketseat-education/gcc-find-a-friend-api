@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^8.2.0",
+    "@fastify/static": "^6.9.0",
     "@prisma/client": "^4.11.0",
     "axios": "^1.3.4",
     "bcryptjs": "^2.4.3",

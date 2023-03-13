@@ -32,6 +32,8 @@ model Pet {
   energy       Int
   size         String
   independence String
+  type         String
+  photo        String
   orgId        String
   org          Org    @relation(fields: [orgId], references: [id])
 

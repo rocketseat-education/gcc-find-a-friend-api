@@ -52,7 +52,9 @@ async function run() {
         description: 'Um doguinho para quem tem muito amor para dar',
         energy: 3,
         independence: 'high',
+        type: 'dog',
         orgId: '30ab4c94-593c-4a5b-8249-54364ef77612',
+        photo: 'caramelinho.jpeg',
       },
     }),
     client.pet.create({
@@ -64,7 +66,9 @@ async function run() {
         description: 'Um companheiro para todas as horas',
         energy: 5,
         independence: 'low',
+        type: 'cat',
         orgId: '30ab4c94-593c-4a5b-8249-54364ef77612',
+        photo: 'yoda.jpeg',
       },
     }),
     client.pet.create({
@@ -76,6 +80,8 @@ async function run() {
         description: 'Um bom amigo para quem gosta de um dog mais quietinho',
         energy: 2,
         independence: 'medium',
+        type: 'dog',
+        photo: 'tigrao.jpeg',
         orgId: '24c7192d-1e26-4ced-bc65-2ae3a942d126',
       },
     }),

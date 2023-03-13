@@ -12,6 +12,7 @@ interface QueryParamsProps {
   energy?: number
   independence?: 'low' | 'medium' | 'high'
   size?: 'small' | 'medium' | 'big'
+  type?: 'all' | 'dog' | 'cat'
 }
 
 export async function appRoutes(app: FastifyInstance) {
@@ -28,6 +29,10 @@ export async function appRoutes(app: FastifyInstance) {
         query.energy = Number(query.energy)
       }
 
+      if (query.type && query.type === 'all') {
+        delete query.type
+      }
+
       const pets = await prismaClient.pet.findMany({
         where: {
           city,
@@ -35,7 +40,12 @@ export async function appRoutes(app: FastifyInstance) {
         },
       })
 
-      return reply.send({ pets })
+      return reply.send({
+        pets: pets.map((pet) => ({
+          ...pet,
+          photo_url: `${process.env.APP_URL}/images/${pet.photo}`,
+        })),
+      })
     } catch {
       return reply.status(400).send({
         error: 'O parâmetros de busca são inválidos',
