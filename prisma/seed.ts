@@ -4,6 +4,7 @@ import bcryptjs from 'bcryptjs'
 const client = new PrismaClient()
 
 async function run() {
+  await client.petGallery.deleteMany()
   await client.pet.deleteMany()
   await client.org.deleteMany()
 
@@ -45,6 +46,7 @@ async function run() {
   await Promise.all([
     client.pet.create({
       data: {
+        id: '137d9eb5-aae2-4aa2-958a-525ec830dde9',
         name: 'Caramelinho',
         age: 'cub',
         size: 'medium',
@@ -59,6 +61,7 @@ async function run() {
     }),
     client.pet.create({
       data: {
+        id: 'e12378c3-0870-48c4-8341-3e0f780c3201',
         name: 'Yoda',
         age: 'adolescent',
         size: 'small',
@@ -73,6 +76,7 @@ async function run() {
     }),
     client.pet.create({
       data: {
+        id: '94f3c2fb-806a-4624-b24e-88b925581dce',
         name: 'Tigrão',
         age: 'elderly',
         size: 'big',
@@ -83,6 +87,69 @@ async function run() {
         type: 'dog',
         photo: 'tigrao.jpeg',
         orgId: '24c7192d-1e26-4ced-bc65-2ae3a942d126',
+      },
+    }),
+  ])
+
+  /**
+   * Criar galeria para os pets
+   */
+
+  await Promise.all([
+    client.petGallery.create({
+      data: {
+        image: 'caramelinho.jpeg',
+        petId: '137d9eb5-aae2-4aa2-958a-525ec830dde9',
+      },
+    }),
+    client.petGallery.create({
+      data: {
+        image: 'caramelinho-1.jpeg',
+        petId: '137d9eb5-aae2-4aa2-958a-525ec830dde9',
+      },
+    }),
+    client.petGallery.create({
+      data: {
+        image: 'caramelinho-2.jpeg',
+        petId: '137d9eb5-aae2-4aa2-958a-525ec830dde9',
+      },
+    }),
+
+    client.petGallery.create({
+      data: {
+        image: 'yoda.jpeg',
+        petId: 'e12378c3-0870-48c4-8341-3e0f780c3201',
+      },
+    }),
+    client.petGallery.create({
+      data: {
+        image: 'yoda-1.jpeg',
+        petId: 'e12378c3-0870-48c4-8341-3e0f780c3201',
+      },
+    }),
+    client.petGallery.create({
+      data: {
+        image: 'yoda-2.jpeg',
+        petId: 'e12378c3-0870-48c4-8341-3e0f780c3201',
+      },
+    }),
+
+    client.petGallery.create({
+      data: {
+        image: 'tigrao.jpeg',
+        petId: '94f3c2fb-806a-4624-b24e-88b925581dce',
+      },
+    }),
+    client.petGallery.create({
+      data: {
+        image: 'tigrao-1.jpg',
+        petId: '94f3c2fb-806a-4624-b24e-88b925581dce',
+      },
+    }),
+    client.petGallery.create({
+      data: {
+        image: 'tigrao-2.jpeg',
+        petId: '94f3c2fb-806a-4624-b24e-88b925581dce',
       },
     }),
   ])

@@ -77,6 +77,7 @@ export async function appRoutes(app: FastifyInstance) {
       return {
         pet: {
           ...pet,
+          photo_url: `${process.env.APP_URL}/images/${pet?.photo}`,
           org: {
             id: pet?.org.id,
             nome: pet?.org.name,
@@ -88,6 +89,31 @@ export async function appRoutes(app: FastifyInstance) {
       }
     } catch (error) {
       return reply.status(404).send({ error: 'Pet não encontrado' })
+    }
+  })
+
+  app.get('/pets/gallery/:pet_id', async (request, reply) => {
+    const galleryRequestParams = z.object({
+      pet_id: z.string(),
+    })
+
+    const { pet_id } = galleryRequestParams.parse(request.params)
+
+    try {
+      const pet_gallery = await prismaClient.petGallery.findMany({
+        where: {
+          petId: pet_id,
+        },
+      })
+
+      return {
+        pet_gallery: pet_gallery.map((gallery) => ({
+          ...gallery,
+          photo_url: `${process.env.APP_URL}/images/${gallery.image}`,
+        })),
+      }
+    } catch (error) {
+      return reply.status(404).send({ error: 'galeria não encontrada' })
     }
   })
 
@@ -111,7 +137,7 @@ export async function appRoutes(app: FastifyInstance) {
     return reply.send({ states })
   })
 
-  app.get('/location/citys/:UF', async (request, replay) => {
+  app.get('/location/citys/:UF', async (request, reply) => {
     const cityParmasSchema = z.object({
       UF: z.string(),
     })
@@ -123,7 +149,7 @@ export async function appRoutes(app: FastifyInstance) {
 
       return { citys }
     } catch {
-      return replay.status(404).send({
+      return reply.status(404).send({
         error: 'Sigla de UF inválida',
       })
     }
