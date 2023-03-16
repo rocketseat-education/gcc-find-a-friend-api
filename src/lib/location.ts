@@ -30,15 +30,16 @@ export async function getBrasilCitysByState(
 }
 
 interface GeoLocationProps {
-  location: {
-    coordinates: {
-      longitude: '-49.0629788'
-      latitude: '-26.9244749'
-    }
-  }
+  longitude: '-49.0629788'
+  latitude: '-26.9244749'
 }
-export async function getGeoLocationByCEP(cep: string) {
+export async function getGeoLocationByCEP(
+  cep: string,
+): Promise<GeoLocationProps> {
   const response = await axios.get(`https://brasilapi.com.br/api/cep/v2/${cep}`)
 
-  return response.data as GeoLocationProps
+  return {
+    latitude: response.data.location.coordinates.latitude,
+    longitude: response.data.location.coordinates.longitude,
+  }
 }

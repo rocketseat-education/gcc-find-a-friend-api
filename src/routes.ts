@@ -3,7 +3,11 @@ import { z } from 'zod'
 
 import { PrismaClient } from '@prisma/client'
 import { parseQueryParams } from './utils/parseQueryParmas'
-import { getBrasilCitysByState, getBrasilStates } from './lib/location'
+import {
+  getBrasilCitysByState,
+  getBrasilStates,
+  getGeoLocationByCEP,
+} from './lib/location'
 
 const prismaClient = new PrismaClient()
 
@@ -50,6 +54,54 @@ export async function appRoutes(app: FastifyInstance) {
       return reply.status(400).send({
         error: 'O parâmetros de busca são inválidos',
       })
+    }
+  })
+
+  app.get('/pets/show/:pet_id', async (request, reply) => {
+    const showPetSchema = z.object({
+      pet_id: z.string(),
+    })
+
+    const { pet_id } = showPetSchema.parse(request.params)
+
+    try {
+      const pet = await prismaClient.pet.findFirst({
+        where: {
+          id: pet_id,
+        },
+        include: {
+          org: true,
+        },
+      })
+
+      return {
+        pet: {
+          ...pet,
+          org: {
+            id: pet?.org.id,
+            nome: pet?.org.name,
+            address: pet?.org.address,
+            cep: pet?.org.cep,
+            whatsappNumber: pet?.org.whatsappNumber,
+          },
+        },
+      }
+    } catch (error) {
+      return reply.status(404).send({ error: 'Pet não encontrado' })
+    }
+  })
+
+  app.get('/location/coordinates/:cep', async (request) => {
+    const coordinatesSchema = z.object({
+      cep: z.string(),
+    })
+
+    const { cep } = coordinatesSchema.parse(request.params)
+
+    const coordinates = await getGeoLocationByCEP(cep)
+
+    return {
+      coordinates,
     }
   })
 

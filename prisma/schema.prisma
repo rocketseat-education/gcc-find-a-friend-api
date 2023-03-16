@@ -12,7 +12,7 @@ datasource db {
 
 model Org {
   id             String @id @default(uuid())
-  nome           String
+  name           String
   email          String
   address        String
   cep            String
