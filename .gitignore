@@ -4,5 +4,5 @@ uploads
 !uploads/*.gitkeep
 .env
 prisma/dev.db
-tmp
-!tmp/*.gitkeep
+# tmp
+# !tmp/*.gitkeep
