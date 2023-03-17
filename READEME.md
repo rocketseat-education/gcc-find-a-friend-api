@@ -9,7 +9,7 @@ Aqui pontuamos tudo que iremos precisar para montar a aplicação final
 ### RF
 - [x] Deve ser possível listar todos os pets disponíveis para adoção em uma cidade
 - [x] Deve ser possível filtrar pets por suas características
-- [ ] Deve ser possível visualizar detalhes de um pet para adoção
+- [x] Deve ser possível visualizar detalhes de um pet para adoção
 - [ ] Deve ser possível se cadastrar como uma ORG
 - [ ] Deve ser possível realizar login como uma ORG
 - [ ] Deve ser possível cadastrar um pet
@@ -22,7 +22,7 @@ Aqui pontuamos tudo que iremos precisar para montar a aplicação final
 
 ### RN
 - [x] Para listar os pets, obrigatóriamente precisamos informar a cidade
-- [ ] Uma ORG precisa ter um endereço e um número de WhatsApp
+- [x] Uma ORG precisa ter um endereço e um número de WhatsApp
 - [x] Um pet deve estar ligado à uma ORG
 - [ ] O usuário que quer adotar, entrará em contato com a ORG via WhatsApp
 - [x] Todos os filtros, além da cidade, são opcionais

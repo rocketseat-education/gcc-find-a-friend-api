@@ -74,6 +74,10 @@ export async function appRoutes(app: FastifyInstance) {
         },
       })
 
+      if (!pet) {
+        return reply.status(404).send({ error: 'Pet não encontrado' })
+      }
+
       return {
         pet: {
           ...pet,
@@ -138,17 +142,23 @@ export async function appRoutes(app: FastifyInstance) {
     }
   })
 
-  app.get('/location/coordinates/:cep', async (request) => {
+  app.get('/location/coordinates/:cep', async (request, reply) => {
     const coordinatesSchema = z.object({
       cep: z.string(),
     })
 
     const { cep } = coordinatesSchema.parse(request.params)
 
-    const coordinates = await getGeoLocationByCEP(cep)
+    try {
+      const coordinates = await getGeoLocationByCEP(cep)
 
-    return {
-      coordinates,
+      return {
+        coordinates,
+      }
+    } catch (error) {
+      return reply
+        .status(404)
+        .send({ error: 'Não foi possível buscar as coordenadas' })
     }
   })
 
