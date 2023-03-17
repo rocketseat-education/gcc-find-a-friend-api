@@ -4,6 +4,7 @@ import bcryptjs from 'bcryptjs'
 const client = new PrismaClient()
 
 async function run() {
+  await client.adoptionRequirements.deleteMany()
   await client.petGallery.deleteMany()
   await client.pet.deleteMany()
   await client.org.deleteMany()
@@ -150,6 +151,27 @@ async function run() {
       data: {
         image: 'tigrao-2.jpeg',
         petId: '94f3c2fb-806a-4624-b24e-88b925581dce',
+      },
+    }),
+  ])
+
+  await Promise.all([
+    client.adoptionRequirements.create({
+      data: {
+        petId: '137d9eb5-aae2-4aa2-958a-525ec830dde9',
+        title: 'Ter tempo para brincadeiras e passeios',
+      },
+    }),
+    client.adoptionRequirements.create({
+      data: {
+        petId: 'e12378c3-0870-48c4-8341-3e0f780c3201',
+        title: 'Não ter cachorros em casa',
+      },
+    }),
+    client.adoptionRequirements.create({
+      data: {
+        petId: '94f3c2fb-806a-4624-b24e-88b925581dce',
+        title: 'Ter tempo para cuidar e dar atenção',
       },
     }),
   ])

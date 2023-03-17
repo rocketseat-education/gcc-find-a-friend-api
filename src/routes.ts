@@ -117,6 +117,27 @@ export async function appRoutes(app: FastifyInstance) {
     }
   })
 
+  app.get('/pets/adoption-requirements/:pet_id', async (request, reply) => {
+    const requirementsParamsSchema = z.object({
+      pet_id: z.string(),
+    })
+
+    const { pet_id } = requirementsParamsSchema.parse(request.params)
+
+    try {
+      const adoption_requirements =
+        await prismaClient.adoptionRequirements.findMany({
+          where: {
+            petId: pet_id,
+          },
+        })
+
+      return { adoption_requirements }
+    } catch (error) {
+      return reply.status(404).send({ error: 'Requisitos não encontrados' })
+    }
+  })
+
   app.get('/location/coordinates/:cep', async (request) => {
     const coordinatesSchema = z.object({
       cep: z.string(),

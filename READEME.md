@@ -44,7 +44,7 @@ Aqui vamos definir o que será desenvolvido em cada sprint
 
 ## Sprint 2
 
-- [ ] Criar models que relacionam os pets com imagens e requisitos de adoção
+- [x] Criar models que relacionam os pets com imagens e requisitos de adoção
 - [x] Criar rota que exibe os detalhes do pet, fazendo relacionamento com a ORG
-- [ ] Criar rota que lista as imagens do pet pelo id
-- [ ] Criar rota que lista requisitos de adoção de um pet id
+- [x] Criar rota que lista as imagens do pet pelo id
+- [x] Criar rota que lista requisitos de adoção de um pet id
