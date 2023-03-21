@@ -12,7 +12,7 @@ datasource db {
 
 model Org {
   id             String @id @default(uuid())
-  nome           String
+  name           String
   email          String
   address        String
   cep            String
@@ -24,18 +24,36 @@ model Org {
 }
 
 model Pet {
-  id           String @id @default(uuid())
-  name         String
-  description  String
-  city         String
-  age          String
-  energy       Int
-  size         String
-  independence String
-  type         String
-  photo        String
-  orgId        String
-  org          Org    @relation(fields: [orgId], references: [id])
+  id                   String                 @id @default(uuid())
+  name                 String
+  description          String
+  city                 String
+  age                  String
+  energy               Int
+  size                 String
+  independence         String
+  type                 String
+  photo                String
+  orgId                String
+  org                  Org                    @relation(fields: [orgId], references: [id])
+  pets                 PetGallery[]
+  adoptionRequirements AdoptionRequirements[]
 
   @@map("pets")
+}
+
+model PetGallery {
+  id    String @id @default(uuid())
+  image String
+  pet   Pet    @relation(fields: [petId], references: [id])
+  petId String
+
+  @@map("pet_gallery")
+}
+
+model AdoptionRequirements {
+  id    String @id @default(uuid())
+  title String
+  pet   Pet    @relation(fields: [petId], references: [id])
+  petId String
 }

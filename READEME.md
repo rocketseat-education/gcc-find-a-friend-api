@@ -9,23 +9,23 @@ Aqui pontuamos tudo que iremos precisar para montar a aplicação final
 ### RF
 - [x] Deve ser possível listar todos os pets disponíveis para adoção em uma cidade
 - [x] Deve ser possível filtrar pets por suas características
-- [ ] Deve ser possível visualizar detalhes de um pet para adoção
+- [x] Deve ser possível visualizar detalhes de um pet para adoção
 - [ ] Deve ser possível se cadastrar como uma ORG
 - [ ] Deve ser possível realizar login como uma ORG
 - [ ] Deve ser possível cadastrar um pet
 
 ### RNF
 - [x] Utilizar Fastify para criar o esquema de rotas da api
-- [ x Utilizar o prisma para lidar com banco de dados
+- [x] Utilizar o prisma para lidar com banco de dados
 - [ ] Multer para upload de arquivo (?)
-- [ ] Usar a "BrasilAPI" para consultar a localização
+- [x] Usar a "BrasilAPI" para consultar a localização
 
 ### RN
-- [ ] Para listar os pets, obrigatóriamente precisamos informar a cidade
-- [ ] Uma ORG precisa ter um endereço e um número de WhatsApp
-- [ ] Um pet deve estar ligado à uma ORG
+- [x] Para listar os pets, obrigatóriamente precisamos informar a cidade
+- [x] Uma ORG precisa ter um endereço e um número de WhatsApp
+- [x] Um pet deve estar ligado à uma ORG
 - [ ] O usuário que quer adotar, entrará em contato com a ORG via WhatsApp
-- [ ] Todos os filtros, além da cidade, são opcionais
+- [x] Todos os filtros, além da cidade, são opcionais
 - [ ] Para uma ORG acessar a aplicação Admin se estiver logado
 
 ## Sprints
@@ -40,4 +40,11 @@ Aqui vamos definir o que será desenvolvido em cada sprint
 - [x] Criar `seed` para podermos testar a aplicação
 - [x] Criar listagem de pets por cidade
 - [x] Aplicar filtros na listagem de pets 
-- [ ] Criar rota que lista todas as cidades
+- [x] Criar rota que lista todas as cidades
+
+## Sprint 2
+
+- [x] Criar models que relacionam os pets com imagens e requisitos de adoção
+- [x] Criar rota que exibe os detalhes do pet, fazendo relacionamento com a ORG
+- [x] Criar rota que lista as imagens do pet pelo id
+- [x] Criar rota que lista requisitos de adoção de um pet id

@@ -4,5 +4,5 @@ export function titleize(text: string) {
     const w = words[a]
     words[a] = w[0].toUpperCase() + w.slice(1)
   }
-  return words.join(' ')
+  return words.join(' ').normalize('NFD')
 }
