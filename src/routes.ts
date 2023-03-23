@@ -1,5 +1,8 @@
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
+import bcryptjs from 'bcryptjs'
+
+import '@fastify/jwt'
 
 import { PrismaClient } from '@prisma/client'
 import { parseQueryParams } from './utils/parseQueryParmas'
@@ -8,6 +11,14 @@ import {
   getBrasilStates,
   getGeoLocationByCEP,
 } from './lib/location'
+
+declare module '@fastify/jwt' {
+  export interface FastifyJWT {
+    user: {
+      sub: string
+    } // user type is return type of `request.user` object
+  }
+}
 
 const prismaClient = new PrismaClient()
 
@@ -183,6 +194,56 @@ export async function appRoutes(app: FastifyInstance) {
       return reply.status(404).send({
         error: 'Sigla de UF inválida',
       })
+    }
+  })
+
+  app.post('/auth/sessions', async (request, reply) => {
+    const authenticationRequestSchema = z.object({
+      email: z.string(),
+      password: z.string(),
+    })
+
+    const { email, password } = authenticationRequestSchema.parse(request.body)
+
+    const org = await prismaClient.org.findFirst({
+      where: {
+        email,
+      },
+    })
+
+    if (!org) {
+      return reply.status(401).send({
+        error: 'Credenciais inválidas',
+      })
+    }
+
+    const passwordIsValid = await bcryptjs.compare(password, org.password)
+
+    if (!passwordIsValid) {
+      return reply.status(401).send({
+        error: 'Credenciais inválidas',
+      })
+    }
+
+    const token = await reply.jwtSign(
+      {},
+      {
+        sign: {
+          sub: org.id,
+        },
+      },
+    )
+
+    return {
+      token,
+      org: {
+        id: org.id,
+        nome: org.name,
+        email: org.email,
+        address: org.address,
+        cep: org.cep,
+        whatsappNumber: org.whatsappNumber,
+      },
     }
   })
 }
