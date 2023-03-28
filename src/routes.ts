@@ -1,5 +1,8 @@
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
+import bcryptjs from 'bcryptjs'
+
+import '@fastify/jwt'
 
 import { PrismaClient } from '@prisma/client'
 import { parseQueryParams } from './utils/parseQueryParmas'
@@ -8,6 +11,14 @@ import {
   getBrasilStates,
   getGeoLocationByCEP,
 } from './lib/location'
+
+declare module '@fastify/jwt' {
+  export interface FastifyJWT {
+    user: {
+      sub: string
+    } // user type is return type of `request.user` object
+  }
+}
 
 const prismaClient = new PrismaClient()
 
@@ -150,11 +161,9 @@ export async function appRoutes(app: FastifyInstance) {
     const { cep } = coordinatesSchema.parse(request.params)
 
     try {
-      const coordinates = await getGeoLocationByCEP(cep)
+      const location = await getGeoLocationByCEP(cep)
 
-      return {
-        coordinates,
-      }
+      return location
     } catch (error) {
       return reply
         .status(404)
@@ -182,6 +191,123 @@ export async function appRoutes(app: FastifyInstance) {
     } catch {
       return reply.status(404).send({
         error: 'Sigla de UF inválida',
+      })
+    }
+  })
+
+  app.post('/auth/sessions', async (request, reply) => {
+    const authenticationRequestSchema = z.object({
+      email: z.string(),
+      password: z.string(),
+    })
+
+    const { email, password } = authenticationRequestSchema.parse(request.body)
+
+    try {
+      const org = await prismaClient.org.findFirst({
+        where: {
+          email,
+        },
+      })
+
+      if (!org) {
+        return reply.status(401).send({
+          error: 'Credenciais inválidas',
+        })
+      }
+
+      const passwordIsValid = await bcryptjs.compare(password, org.password)
+
+      if (!passwordIsValid) {
+        return reply.status(401).send({
+          error: 'Credenciais inválidas',
+        })
+      }
+
+      const token = await reply.jwtSign(
+        {},
+        {
+          sign: {
+            sub: org.id,
+          },
+        },
+      )
+
+      return {
+        token,
+        org: {
+          id: org.id,
+          nome: org.name,
+          email: org.email,
+          address: org.address,
+          cep: org.cep,
+          whatsappNumber: org.whatsappNumber,
+        },
+      }
+    } catch (error) {
+      return reply.status(401).send({
+        error: 'Falha na autenticação',
+      })
+    }
+  })
+
+  app.post('/orgs', async (request, reply) => {
+    const createORGRequestParams = z.object({
+      name: z.string(),
+      email: z.string(),
+      cep: z.string(),
+      address: z.string(),
+      whatsappNumber: z.string(),
+      password: z.string(),
+      passwordConfirm: z.string(),
+    })
+
+    const {
+      address,
+      cep,
+      email,
+      name,
+      password,
+      passwordConfirm,
+      whatsappNumber,
+    } = createORGRequestParams.parse(request.body)
+
+    try {
+      const orgAlreadyExists = await prismaClient.org.findFirst({
+        where: {
+          email,
+        },
+      })
+
+      if (orgAlreadyExists) {
+        return reply.status(400).send({
+          error: 'Já existe uma ORG com este e-mail',
+        })
+      }
+
+      if (password !== passwordConfirm) {
+        return reply.status(400).send({
+          error: 'As senhas não conferem',
+        })
+      }
+
+      const hashedPassword = await bcryptjs.hash(password, 8)
+
+      await prismaClient.org.create({
+        data: {
+          address,
+          cep,
+          email,
+          name,
+          whatsappNumber,
+          password: hashedPassword,
+        },
+      })
+
+      return reply.status(201).send()
+    } catch (error) {
+      return reply.status(400).send({
+        error: 'Não foi possível cadastrar a ORG',
       })
     }
   })

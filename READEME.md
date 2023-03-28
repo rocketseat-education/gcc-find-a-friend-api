@@ -48,3 +48,9 @@ Aqui vamos definir o que será desenvolvido em cada sprint
 - [x] Criar rota que exibe os detalhes do pet, fazendo relacionamento com a ORG
 - [x] Criar rota que lista as imagens do pet pelo id
 - [x] Criar rota que lista requisitos de adoção de um pet id
+
+
+## Sprint 2
+
+- [x] Criar estratégia de Login e rota para autenticação
+- [ ] Criar rota para criação de uma ORG

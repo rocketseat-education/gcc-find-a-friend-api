@@ -1,12 +1,16 @@
 import fastify from 'fastify'
 import cors from '@fastify/cors'
+import fastifyJwt from '@fastify/jwt'
+import path from 'path'
 
 import { appRoutes } from './routes'
-import path from 'path'
 
 const app = fastify()
 
 app.register(cors)
+app.register(fastifyJwt, {
+  secret: String(process.env.JWT_SECRET),
+})
 app.register(appRoutes)
 
 app.register(require('@fastify/static'), {
