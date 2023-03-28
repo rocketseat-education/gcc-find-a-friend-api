@@ -161,11 +161,9 @@ export async function appRoutes(app: FastifyInstance) {
     const { cep } = coordinatesSchema.parse(request.params)
 
     try {
-      const coordinates = await getGeoLocationByCEP(cep)
+      const location = await getGeoLocationByCEP(cep)
 
-      return {
-        coordinates,
-      }
+      return location
     } catch (error) {
       return reply
         .status(404)
