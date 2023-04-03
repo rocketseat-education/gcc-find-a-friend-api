@@ -31,6 +31,7 @@ export async function getBrasilCitysByState(
 
 interface GeoLocationProps {
   address: string
+  city: string
   coordinates: {
     longitude: string
     latitude: string
@@ -43,6 +44,7 @@ export async function getGeoLocationByCEP(
 
   return {
     address: response.data.street,
+    city: response.data.city,
     coordinates: {
       latitude: response.data.location.coordinates.latitude,
       longitude: response.data.location.coordinates.longitude,

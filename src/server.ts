@@ -1,6 +1,7 @@
 import fastify from 'fastify'
 import cors from '@fastify/cors'
 import fastifyJwt from '@fastify/jwt'
+import multer from 'fastify-multer'
 import fastifyCookie from '@fastify/cookie'
 import path from 'path'
 
@@ -19,6 +20,8 @@ app.register(fastifyJwt, {
     expiresIn: '5m',
   },
 })
+// app.register(fastifyMultipart, { attachFieldsToBody: true })
+app.register(multer.contentParser)
 app.register(fastifyCookie)
 app.register(appRoutes)
 
