@@ -50,7 +50,13 @@ Aqui vamos definir o que será desenvolvido em cada sprint
 - [x] Criar rota que lista requisitos de adoção de um pet id
 
 
-## Sprint 2
+## Sprint 3
 
 - [x] Criar estratégia de Login e rota para autenticação
-- [ ] Criar rota para criação de uma ORG
+- [x] Criar rota para criação de uma ORG
+
+## Sprint
+- [x] Criar estratégia de refresh token
+- [ ] Criar rota para criação de um pet.
+- [ ] Cadastrar galeria de fotos no momento do cadastro do pet.
+- [ ] Cadastrar requisitos de adoção no momento de cadastro do pet.

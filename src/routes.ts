@@ -233,20 +233,79 @@ export async function appRoutes(app: FastifyInstance) {
         },
       )
 
-      return {
-        token,
-        org: {
-          id: org.id,
-          nome: org.name,
-          email: org.email,
-          address: org.address,
-          cep: org.cep,
-          whatsappNumber: org.whatsappNumber,
+      const refreshToken = await reply.jwtSign(
+        {},
+        {
+          sign: {
+            sub: org.id,
+            expiresIn: '2d',
+          },
         },
-      }
+      )
+
+      return reply
+        .setCookie('refreshToken', refreshToken, {
+          path: '/',
+          secure: true,
+          sameSite: true,
+          httpOnly: true,
+        })
+        .status(200)
+        .send({
+          token,
+          org: {
+            id: org.id,
+            nome: org.name,
+            email: org.email,
+            address: org.address,
+            cep: org.cep,
+            whatsappNumber: org.whatsappNumber,
+          },
+        })
     } catch (error) {
       return reply.status(401).send({
         error: 'Falha na autenticação',
+      })
+    }
+  })
+
+  app.patch('/auth/refresh-token', async (request, reply) => {
+    try {
+      await request.jwtVerify({ onlyCookie: true })
+
+      const token = await reply.jwtSign(
+        {},
+        {
+          sign: {
+            sub: request.user.sub,
+          },
+        },
+      )
+
+      const refreshToken = await reply.jwtSign(
+        {},
+        {
+          sign: {
+            sub: request.user.sub,
+            expiresIn: '2d',
+          },
+        },
+      )
+
+      return reply
+        .setCookie('refreshToken', refreshToken, {
+          path: '/',
+          secure: true,
+          sameSite: true,
+          httpOnly: true,
+        })
+        .status(200)
+        .send({
+          token,
+        })
+    } catch (error) {
+      return reply.status(401).send({
+        error: 'Erro ao revalidar o token',
       })
     }
   })
