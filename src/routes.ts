@@ -2,8 +2,10 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import bcryptjs from 'bcryptjs'
 
-import '@fastify/jwt'
+import { File } from 'fastify-multer/lib/interfaces'
 
+import '@fastify/jwt'
+import multer from 'fastify-multer'
 import { PrismaClient } from '@prisma/client'
 import { parseQueryParams } from './utils/parseQueryParmas'
 import {
@@ -11,6 +13,24 @@ import {
   getBrasilStates,
   getGeoLocationByCEP,
 } from './lib/location'
+import { verifyJWT } from './middlewares'
+import {
+  PetAgeProps,
+  PetIndependenceProps,
+  PetSizeProps,
+  PetTypeProps,
+} from './pet-filter-types'
+
+import uploadConfig from './config/upload'
+import { titleize } from './utils/titleize'
+
+declare module 'fastify' {
+  export interface FastifyRequest {
+    files: File[]
+  }
+}
+
+const upload = multer(uploadConfig)
 
 declare module '@fastify/jwt' {
   export interface FastifyJWT {
@@ -23,14 +43,119 @@ declare module '@fastify/jwt' {
 const prismaClient = new PrismaClient()
 
 interface QueryParamsProps {
-  age?: 'cub' | 'adolescent' | 'elderly'
+  age?: PetAgeProps
   energy?: number
-  independence?: 'low' | 'medium' | 'high'
-  size?: 'small' | 'medium' | 'big'
-  type?: 'all' | 'dog' | 'cat'
+  independence?: PetIndependenceProps
+  size?: PetSizeProps
+  type?: PetTypeProps | 'all'
 }
 
 export async function appRoutes(app: FastifyInstance) {
+  app.post(
+    '/pets',
+    { onRequest: verifyJWT, preHandler: upload.array('images', 6) },
+    async (request, reply) => {
+      try {
+        const createPetBodySchema = z.object({
+          name: z.string(),
+          age: z.string(),
+          size: z.string(),
+          description: z.string(),
+          energy: z.string(),
+          independence: z.string(),
+          type: z.string(),
+          adoptionRequirements: z.string(),
+        })
+
+        const {
+          adoptionRequirements,
+          age,
+          description,
+          energy,
+          independence,
+          name,
+          size,
+          type,
+        } = createPetBodySchema.parse(request.body)
+
+        const orgId = request.user.sub
+
+        const findOrg = await prismaClient.org.findFirst({
+          where: {
+            id: orgId,
+          },
+        })
+
+        if (!findOrg) {
+          return reply.status(404).send({
+            error: 'ORG não encontrada',
+          })
+        }
+
+        const parsedRequirement = JSON.parse(adoptionRequirements)
+
+        if (parsedRequirement.length <= 0) {
+          return reply
+            .status(400)
+            .send({ error: 'É necessário no mínimo 1 requisito de adoção' })
+        }
+
+        const images = request.files
+
+        if (images.length <= 0) {
+          return reply
+            .status(400)
+            .send({ error: 'É necessário no mínimo 1 imagem do pet' })
+        }
+
+        const photo = images[0].filename
+
+        const { city } = await getGeoLocationByCEP(findOrg.cep)
+
+        console.log(titleize(city))
+
+        const pet = await prismaClient.pet.create({
+          data: {
+            age,
+            city: titleize(city),
+            description,
+            energy: Number(energy),
+            independence,
+            name,
+            photo: photo!,
+            size,
+            type,
+            orgId,
+          },
+        })
+
+        for await (const image of images) {
+          await prismaClient.petGallery.create({
+            data: {
+              image: image.filename!,
+              petId: pet.id,
+            },
+          })
+        }
+
+        for await (const requirement of parsedRequirement) {
+          await prismaClient.adoptionRequirements.create({
+            data: {
+              petId: pet.id,
+              title: requirement,
+            },
+          })
+        }
+
+        return reply.status(201).send()
+      } catch (error) {
+        return reply.status(400).send({
+          error: 'Não foi possível cadastrar o Pet',
+        })
+      }
+    },
+  )
+
   app.get('/pets/:city', async (request, reply) => {
     const requestParamsSchema = z.object({
       city: z.string(),
@@ -233,20 +358,79 @@ export async function appRoutes(app: FastifyInstance) {
         },
       )
 
-      return {
-        token,
-        org: {
-          id: org.id,
-          nome: org.name,
-          email: org.email,
-          address: org.address,
-          cep: org.cep,
-          whatsappNumber: org.whatsappNumber,
+      const refreshToken = await reply.jwtSign(
+        {},
+        {
+          sign: {
+            sub: org.id,
+            expiresIn: '2d',
+          },
         },
-      }
+      )
+
+      return reply
+        .setCookie('refreshToken', refreshToken, {
+          path: '/',
+          secure: true,
+          sameSite: true,
+          httpOnly: true,
+        })
+        .status(200)
+        .send({
+          token,
+          org: {
+            id: org.id,
+            nome: org.name,
+            email: org.email,
+            address: org.address,
+            cep: org.cep,
+            whatsappNumber: org.whatsappNumber,
+          },
+        })
     } catch (error) {
       return reply.status(401).send({
         error: 'Falha na autenticação',
+      })
+    }
+  })
+
+  app.patch('/auth/refresh-token', async (request, reply) => {
+    try {
+      await request.jwtVerify({ onlyCookie: true })
+
+      const token = await reply.jwtSign(
+        {},
+        {
+          sign: {
+            sub: request.user.sub,
+          },
+        },
+      )
+
+      const refreshToken = await reply.jwtSign(
+        {},
+        {
+          sign: {
+            sub: request.user.sub,
+            expiresIn: '2d',
+          },
+        },
+      )
+
+      return reply
+        .setCookie('refreshToken', refreshToken, {
+          path: '/',
+          secure: true,
+          sameSite: true,
+          httpOnly: true,
+        })
+        .status(200)
+        .send({
+          token,
+        })
+    } catch (error) {
+      return reply.status(401).send({
+        error: 'Erro ao revalidar o token',
       })
     }
   })
